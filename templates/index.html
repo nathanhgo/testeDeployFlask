@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload com Flask e JS</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f0f2f5; margin: 0; }
+        .container { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
+        #status { margin-top: 1rem; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Upload de Arquivo com Flask</h2>
+        <form id="mainForm">
+            <input type="file" id="fileInput" name="photo" required>
+            <button type="submit">Enviar Arquivo</button>
+        </form>
+        <p id="status"></p>
+        <div id="imageRes"></div>
+    </div>
+
+    <script>
+        const form = document.querySelector('#mainForm');
+        const status = document.querySelector('#status');
+        const imageRes = document.querySelector('#imageRes')
+
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            const formData = new FormData();
+            const photo = e.target.fileInput.files[0];
+            formData.append("photo", photo);
+
+            status.textContent = 'Enviando...';
+
+            fetch('/upload/image', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.message) {
+                    status.textContent = data.message;
+                    
+                    console.log(data.path)
+                    // imageRes.innerHTML = `<img src="../static/uploads/${data.file_name}" width="300">`;
+
+                    const urlDaImagemDoServidor = data.path;
+                    imageRes.innerHTML = `<img src="${urlDaImagemDoServidor}" width="300">`;
+
+                } else if (data.error) {
+                    status.textContent = `Erro: ${data.error}`;
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                status.textContent = 'Ocorreu um erro na comunicação com o servidor.';
+            });
+        });
+    </script>
+</body>
+</html>
