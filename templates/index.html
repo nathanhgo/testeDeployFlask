@@ -32,6 +32,8 @@
             const photo = e.target.fileInput.files[0];
             formData.append("photo", photo);
 
+            imageRes.innerHTML = ''
+
             status.textContent = 'Enviando...';
 
             fetch('/upload/image', {
@@ -44,11 +46,10 @@
                 if (data.message) {
                     status.textContent = data.message;
                     
-                    console.log(data.path)
                     // imageRes.innerHTML = `<img src="../static/uploads/${data.file_name}" width="300">`;
 
-                    const urlDaImagemDoServidor = data.path;
-                    imageRes.innerHTML = `<img src="${urlDaImagemDoServidor}" width="300">`;
+                    const urlDaImagemDoServidor = `${data.path}?t=${new Date().getTime()}`;
+                    imageRes.innerHTML = `<img id="imgUpload" src="${urlDaImagemDoServidor}" width="300">`;
 
                 } else if (data.error) {
                     status.textContent = `Erro: ${data.error}`;
